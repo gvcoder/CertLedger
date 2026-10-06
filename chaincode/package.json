@@ -1,0 +1,19 @@
+{
+  "name": "certledger-chaincode",
+  "version": "1.0.0",
+  "description": "Hyperledger Fabric TypeScript Smart Contract for MultiSig Course Certificates",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.4",
+    "fabric-shim": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

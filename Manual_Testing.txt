@@ -1,0 +1,32 @@
+Step 1: Start the Local Development Server
+Open your terminal in /home/gvmuthu/code/Blockchain and run:
+>>bash
+npm run dev
+
+This will launch:
+🌐 Web Portal: http://localhost:3000
+⚡ API Server: http://localhost:5000
+
+🧪 Suggested Manual Testing Flow
+Test Flow 1: Create a Course with AI (As a Teacher 👩‍🏫)
+Open http://localhost:3000 and click "Register / Sign In" (or click 👩‍🏫 Teacher).
+Go to Teacher Workspace -> Click "Create New Course + AI Quiz".
+Enter a title (e.g. "Cybersecurity & Zero Trust Architecture") and paste a paragraph of reading text.
+Click "Use AI to Generate Questions" -> See 5 multiple choice questions auto-populated!
+Click "Publish Course".
+
+Test Flow 2: Enrol & Take Exam (As a Student 🎓)
+Click "Register / Sign In" -> Register as a new Student with your own name.
+Go to My Courses & Credentials -> Enrol in the newly published course.
+Read the course text -> Click "Take 5-Question Exam".
+Answer the 5 questions (get at least 4 out of 5 correct).
+Upon passing, see the green completion modal and your new Certificate ID (e.g. CERT-2026-XXXXX).
+
+Test Flow 3: 3-Way Multi-Party Signatures (Teacher & Admin 🛡️)
+Teacher Co-Sign: Switch to 👩‍🏫 Teacher -> Go to Teacher Workspace -> See the student's certificate under Academic Signature Review Queue -> Click "Co-Sign Certificate".
+Platform Admin Endorsement: Switch to 🛡️ Admin -> Go to Super-Admin Governance -> See the certificate in the Platform Endorsement Queue -> Click "Apply Final Platform Endorsement".
+
+Test Flow 4: Recruiter Verification (No Login 🔍)
+Go to http://localhost:3000/verify/CERT-2026-XXXXX (or click "Public Verification Portal").
+Inspect the verified 3-Way Signature Stepper with cryptographic hashes, the printable diploma, and click "Audit History" to view the block-by-block ledger trail.
+

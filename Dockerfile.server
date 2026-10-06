@@ -1,0 +1,33 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy root and package manifests
+COPY package.json tsconfig.json ./
+COPY server/package.json ./server/
+COPY chaincode/package.json ./chaincode/
+
+RUN npm install
+
+COPY server ./server
+COPY chaincode ./chaincode
+
+RUN npm run build --workspace=chaincode
+RUN npm run build --workspace=server
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+COPY package.json ./
+COPY server/package.json ./server/
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/server/dist ./server/dist
+COPY --from=builder /app/chaincode/dist ./chaincode/dist
+
+EXPOSE 5000
+
+ENV NODE_ENV=production
+ENV PORT=5000
+
+CMD ["node", "server/dist/index.js"]
