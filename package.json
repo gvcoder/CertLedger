@@ -1,0 +1,21 @@
+{
+  "name": "certledger-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Secured Blockchain Course Certification System built on Hyperledger Fabric",
+  "workspaces": [
+    "server",
+    "client",
+    "chaincode"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
+    "build": "npm run build --workspace=chaincode && npm run build --workspace=server && npm run build --workspace=client",
+    "start": "npm run start --workspace=server",
+    "test": "npm run test --workspace=chaincode && npm run test --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  }
+}
