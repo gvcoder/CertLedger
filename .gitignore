@@ -29,3 +29,19 @@ yarn-error.log*
 *.sw?
 .vscode/
 .idea/
+
+# Hyperledger Fabric - downloaded tooling & generated artifacts
+!network/compose/.env
+network/bin/
+network/config/
+network/builders/
+network/install-fabric.sh
+network/organizations/
+network/channel-artifacts/
+network/explorer/wallet/
+network/log/
+*.tar.gz
+
+# Server runtime data (private keys + SQLite)
+server/wallet/
+server/data/

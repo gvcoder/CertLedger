@@ -1,0 +1,168 @@
+# ---------------------------------------------------------------------------
+# CertLedger - channel configuration
+#
+# Used by:  configtxgen -profile CertLedgerChannel -channelID certchannel ...
+# Paths below are relative to THIS directory (FABRIC_CFG_PATH=network/configtx).
+#
+# Things worth experimenting with (then `network.sh clean && network.sh up`):
+#   * BatchTimeout / MaxMessageCount  -> how many txs end up in one block
+#   * Application Policies            -> who may read / write / administer
+#   * Endorsement (default policy)    -> chaincode endorsement default
+# ---------------------------------------------------------------------------
+
+Organizations:
+
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/certledger.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+    OrdererEndpoints:
+      - orderer.certledger.com:7050
+
+  # Universities: teachers + students live here
+  - &University
+    Name: UniversityMSP
+    ID: UniversityMSP
+    MSPDir: ../organizations/peerOrganizations/university.certledger.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('UniversityMSP.admin', 'UniversityMSP.peer', 'UniversityMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('UniversityMSP.admin', 'UniversityMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('UniversityMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('UniversityMSP.peer')"
+    # Anchor peer: used for cross-org gossip (encoded into the channel genesis block)
+    AnchorPeers:
+      - Host: peer0.university.certledger.com
+        Port: 7051
+
+  # Learning platform provider (edX / Coursera style super-admins)
+  - &Platform
+    Name: PlatformMSP
+    ID: PlatformMSP
+    MSPDir: ../organizations/peerOrganizations/platform.certledger.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('PlatformMSP.admin', 'PlatformMSP.peer', 'PlatformMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('PlatformMSP.admin', 'PlatformMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('PlatformMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('PlatformMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.platform.certledger.com
+        Port: 9051
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    # Approving / committing a chaincode definition needs a majority of orgs
+    # (with 2 orgs: BOTH must approve)
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    # Default endorsement policy for chaincodes that don't specify their own.
+    # deployCC.sh sets an explicit AND('UniversityMSP.peer','PlatformMSP.peer').
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.certledger.com:7050
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.certledger.com
+        Port: 7050
+        ClientTLSCert: ../organizations/ordererOrganizations/certledger.com/orderers/orderer.certledger.com/tls/server.crt
+        ServerTLSCert: ../organizations/ordererOrganizations/certledger.com/orderers/orderer.certledger.com/tls/server.crt
+  # Cut a block after 2s or 10 txs, whichever comes first
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  CertLedgerChannel:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *University
+        - *Platform
+      Capabilities: *ApplicationCapabilities

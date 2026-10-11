@@ -1,0 +1,78 @@
+# ---------------------------------------------------------------------------
+# CertLedger - Certificate Authorities
+#
+# One Fabric CA per organisation. Every identity in the network (peers,
+# orderer, admins, app users) is issued by one of these CAs - there is no
+# `cryptogen` shortcut anywhere.
+#
+# CA data (root cert, sqlite registry) is written to ../organizations/fabric-ca/<org>
+# and the containers run as *your* UID so you can read/delete the files.
+# ---------------------------------------------------------------------------
+networks:
+  fabric:
+    name: certledger_fabric
+
+services:
+
+  ca_university:
+    image: hyperledger/fabric-ca:${CA_VERSION}
+    container_name: ca_university
+    hostname: ca_university
+    user: "${FABRIC_UID:-1000}:${FABRIC_GID:-1000}"
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-university
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_CSR_CN=ca.university.certledger.com
+      - FABRIC_CA_SERVER_CSR_HOSTS=localhost,ca_university,ca.university.certledger.com
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:17054
+    ports:
+      - "7054:7054"
+      - "17054:17054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    volumes:
+      - ../organizations/fabric-ca/university:/etc/hyperledger/fabric-ca-server
+    networks: [fabric]
+
+  ca_platform:
+    image: hyperledger/fabric-ca:${CA_VERSION}
+    container_name: ca_platform
+    hostname: ca_platform
+    user: "${FABRIC_UID:-1000}:${FABRIC_GID:-1000}"
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-platform
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=8054
+      - FABRIC_CA_SERVER_CSR_CN=ca.platform.certledger.com
+      - FABRIC_CA_SERVER_CSR_HOSTS=localhost,ca_platform,ca.platform.certledger.com
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:18054
+    ports:
+      - "8054:8054"
+      - "18054:18054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    volumes:
+      - ../organizations/fabric-ca/platform:/etc/hyperledger/fabric-ca-server
+    networks: [fabric]
+
+  ca_orderer:
+    image: hyperledger/fabric-ca:${CA_VERSION}
+    container_name: ca_orderer
+    hostname: ca_orderer
+    user: "${FABRIC_UID:-1000}:${FABRIC_GID:-1000}"
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-orderer
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=9054
+      - FABRIC_CA_SERVER_CSR_CN=ca.certledger.com
+      - FABRIC_CA_SERVER_CSR_HOSTS=localhost,ca_orderer,ca.certledger.com
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:19054
+    ports:
+      - "9054:9054"
+      - "19054:19054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    volumes:
+      - ../organizations/fabric-ca/ordererOrg:/etc/hyperledger/fabric-ca-server
+    networks: [fabric]

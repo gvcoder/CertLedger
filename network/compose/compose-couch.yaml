@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------------------
+# CertLedger - CouchDB world-state databases (one per peer)
+#
+# Fauxton UI (user admin / adminpw):
+#   University peer state:  http://localhost:5984/_utils
+#   Platform peer state:    http://localhost:7984/_utils
+#
+# The database holding chaincode state is named  certchannel_certledger
+# ---------------------------------------------------------------------------
+networks:
+  fabric:
+    name: certledger_fabric
+
+volumes:
+  couchdb.university:
+  couchdb.platform:
+
+services:
+
+  couchdb.university:
+    image: couchdb:${COUCHDB_VERSION}
+    container_name: couchdb.university
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "5984:5984"
+    volumes:
+      - couchdb.university:/opt/couchdb/data
+    networks: [fabric]
+
+  couchdb.platform:
+    image: couchdb:${COUCHDB_VERSION}
+    container_name: couchdb.platform
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "7984:5984"
+    volumes:
+      - couchdb.platform:/opt/couchdb/data
+    networks: [fabric]
