@@ -4,17 +4,28 @@
   "description": "Hyperledger Fabric TypeScript Smart Contract for MultiSig Course Certificates",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "npx tsc",
     "start": "fabric-chaincode-node start",
+    "test": "npx tsc && TS_NODE_TRANSPILE_ONLY=1 mocha -r ts-node/register 'test/**/*.test.ts'",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "fabric-contract-api": "^2.5.4",
-    "fabric-shim": "^2.5.4"
+    "fabric-contract-api": "~2.5.4",
+    "fabric-shim": "~2.5.4"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.0",
+    "@types/sinon": "^17.0.3",
+    "chai": "^4.4.1",
+    "mocha": "^10.4.0",
+    "sinon": "^17.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
 }
